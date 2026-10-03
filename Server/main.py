@@ -52,25 +52,36 @@ def get_item(item_id):
     return jsonify({"error": "Item not found"}), 404
 
 # EXTERNAL API LOOKUP
-@app.route("/search/<barcode>", methods=["GET"])
+@app.route("/search/<barcode>")
 def search_product(barcode):
-    url = f"https://world.openfoodfacts.org/api/v0/product/{barcode}.json"
     try:
-        response = requests.get(url, timeout=10)
-        if response.status_code != 200:
-            return jsonify({"error": "External API error"}), 502
-        result = response.json()
-        if result.get("status") != 1:
-            return jsonify({"error": "Product not found", "barcode": barcode}), 404
-        product = result.get("product", {})
-        return jsonify({
-            "barcode": barcode,
-            "name": product.get("product_name", "Unknown"),
-            "brand": product.get("brands", "Unknown"),
-            "image": product.get("image_url")
-        }), 200
+        # Identifing my app to the API
+        headers = {"User-Agent": "BensonPOS/1.0 (benson@example.com)"}
+        # Call the Open Food Facts API using the barcode
+        r = requests.get(
+            f"https://world.openfoodfacts.org/api/v0/product/{barcode}.json",
+            headers=headers,
+        )
+        # If the API does not respond with HTTP 200, return a 502 
+        if r.status_code != 200:
+            return jsonify(error="External API error", status=r.status_code), 502
+        data = r.json()
+        # If the product is not found in Open Food Facts, return 404
+        if data.get("status") != 1:
+            return jsonify(error="Product not found", barcode=barcode), 404
+        # Extract product details safely from the JSON
+        p = data["product"]
+        # Return simplified product info with HTTP 200 (OK)
+        return jsonify(
+            barcode=barcode,
+            name=p.get("product_name", " "),
+            brand=p.get("brands", " "),
+            image=p.get("image_url")
+        ), 200
     except requests.RequestException:
-        return jsonify({"error": "Could not connect to Open Food Facts"}), 503
+        # If the API cannot be reached at all, return 503
+        return jsonify(error="Could not connect to Open Food Facts"), 503
+
 # INVENTORY - CREATE
 @app.route("/inventory", methods=["POST"])
 def create_item():
