@@ -18,7 +18,7 @@ All of this is controlled by a Flask REST API backend and a Python CLI frontend.
 
 ## Project Structure
 Code
-        Inventory-Management-System/
+       ` Inventory-Management-System/
         │-- cli.py               # Command-line client
         │-- README.md
         │-- Server/
@@ -27,7 +27,7 @@ Code
         │   └-- venv/            # Virtual environment
         └-- tests/
             │-- test_api.py      # API tests
-            └-- test_cli.py      # CLI tests
+            └-- test_cli.py      # CLI tests`
 Server/main.py → Flask app with routes, inventory, login, cookies, external API integration.
 
 cli.py → Interactive command-line tool that talks to the Flask API.
@@ -148,13 +148,3 @@ Commit, push, and create Pull Requests.
 Merge into main and clean up branches.
  Teaches you real-world Git practices.
 
-## Learning Objectives
-- By the end, you’ll have practiced:
-- Python basics
-- Flask routes and REST APIs
-- CRUD operations
-- Sessions and cookies
-- External API integration
-- CLI communication
-- Automated testing
-- Git branching and collaboration
