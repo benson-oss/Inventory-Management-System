@@ -255,7 +255,7 @@ def menu():
     print("| 4. Add item                           |")
     print("| 5. Update item                        |")
     print("| 6. Delete item                        |")
-    print("| 7. Who am I?                          |")
+    print("| 7. me?                          |")
     print("| 8. Set cookie                         |")
     print("| 9. Get cookie                         |")
     print("| 10. Delete cookie                     |")
