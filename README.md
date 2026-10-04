@@ -18,16 +18,19 @@ All of this is controlled by a Flask REST API backend and a Python CLI frontend.
 
 ## Project Structure
 Code
-       ` Inventory-Management-System/
-        │-- cli.py               # Command-line client
-        │-- README.md
-        │-- Server/
-        │   │-- main.py          # Flask backend
-        │   │-- requirements.txt # Dependencies
-        │   └-- venv/            # Virtual environment
-        └-- tests/
-            │-- test_api.py      # API tests
-            └-- test_cli.py      # CLI tests`
+       `Inventory-Management-System/
+│
+├── cli.py              # Command-line client
+├── README.md
+├── requirements.txt     # Dependencies
+├── venv/                # Virtual environment
+│
+├── Server/
+│   └── main.py          # Flask backend
+│
+└── tests/
+    ├── test_api.py      # API tests
+    └── test_cli.py      # CLI tests
 Server/main.py → Flask app with routes, inventory, login, cookies, external API integration.
 
 cli.py → Interactive command-line tool that talks to the Flask API.
