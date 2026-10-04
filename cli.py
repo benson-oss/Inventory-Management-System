@@ -206,7 +206,7 @@ def menu():
     print("\n========== INVENTORY MANAGEMENT ==========")
     print("1. List inventory")
     print("2. Get item")
-    print("3. Search product")
+    print("3. Search product from the (API)")
     print("4. Add item")
     print("5. Update item")
     print("6. Delete item")
