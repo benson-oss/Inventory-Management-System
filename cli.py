@@ -1,38 +1,78 @@
 import requests
+from colorama import init, Fore, Style
+init(autoreset=True)
 
 BASE_URL = "http://127.0.0.1:5000"
 
 # Keep login cookies
 session = requests.Session()
 
+WIDTH = 60
+def big_box_top():
+    print(Fore.CYAN + "╔" + "═" * (WIDTH - 2) + "╗")
+def big_box_bottom():
+    print(Fore.CYAN + "╚" + "═" * (WIDTH - 2) + "╝")
+
+def box_line(text="", color=Fore.WHITE, width=WIDTH):
+    content = str(text)
+    if len(content) > width - 4:
+        content = content[:width - 4]
+    spaces = width - 3 - len(content)
+    print(
+        Fore.CYAN
+        + "║"
+        + color
+        + " "
+        + content
+        + " " * spaces
+        + Fore.CYAN
+        + "║")
+    
 def show_response(response):
-    print()
-    print("=" * 40)
-    print("STATUS:", response.status_code)
-    print("=" * 40)
+    print("┌────────────────────────────────────────────────────────────┐")
+    print("│                      RESPONSE                              │")
+    print("├────────────────────────────────────────────────────────────┤")
+    print("│                                                            │")
     try:
-        print(response.json())
+        data = response.json()
+        print("│")
+        if "Admin" in data:
+            print(f"│  Admin   : {data['Admin']}")
+        if "message" in data:
+            print(f"│  Message : {data['message']}")
+        for key, value in data.items():
+            if key not in ["Admin", "message"]:
+                print(f"│  {key} : {value}")
     except requests.exceptions.JSONDecodeError:
-        print(response.text)
-    print("=" * 40)
+        print(f"│  {response.text}")
+    print("│                                                            │")
+    print("└────────────────────────────────────────────────────────────┘")
 
 def login():
-    print("\n========== LOGIN ==========")
-    username = input("Username: ")
-    password = input("Password: ")
+    print("╔════════════════════════════════════════════════╗")
+    print("║          INVENTORY MANAGEMENT SYSTEM           ║")
+    print("╚════════════════════════════════════════════════╝")
+    print("┌────────────────────────────────────────────────┐")
+    print("│                          LOGIN                 │")
+    print("├────────────────────────────────────────────────┤")
+    username = input("| Username: ")
+    password = input("| Password: ")
+    print("│                                                │")
+    print("└────────────────────────────────────────────────┘")
     try:
         response = session.post(
             f"{BASE_URL}/login",
-            json={
-                "username": username,
-                "password": password
-            }
+            json={"username": username, "password": password}
         )
         show_response(response)
         return response.status_code == 200
     except requests.exceptions.ConnectionError:
-        print("Could not connect to Flask server.")
-        print("Make sure main.py is running.")
+        print()
+        print("┌───────────────────────────────────────────────┐")
+        print("│                 ERROR                         │")
+        print("├───────────────────────────────────────────────┤")
+        print("│         Could not connect to Flask server.    │")
+        print("└───────────────────────────────────────────────┘")
         return False
 
 def logout():
@@ -45,7 +85,35 @@ def whoami():
 
 def list_inventory():
     response = session.get(f"{BASE_URL}/inventory")
-    show_response(response)
+    if response.status_code != 200:
+        print(Fore.RED + "Failed to fetch inventory.")
+        return
+    data = response.json()
+    inventory = data.get("inventory", [])
+    count = data.get("count", len(inventory))
+    print(Fore.CYAN + "╔══════════════════════════════════════════════════════════════════════════════════════════╗")
+    print(Fore.CYAN + "║                         INVENTORY MANAGEMENT SYSTEM                                    ║")
+    print(Fore.CYAN + "╚══════════════════════════════════════════════════════════════════════════════════════════╝")
+    print(Fore.WHITE + "┌────┬────────────────┬────────────────┬─────────────────┬──────────┬────────────┐")
+    print(Fore.WHITE + "│ ID │ NAME           │ BRAND          │ CODE            │ QUANTITY │ EXPIRATION │")
+    print(Fore.WHITE + "├────┼────────────────┼────────────────┼─────────────────┼──────────┼────────────┤")
+    for item in inventory:
+        print(
+            #< = align to the left
+            #2 = make the space 2 characters wide
+            Fore.WHITE +
+            f"│ {str(item.get('id', '')):<2} "
+            f"│ {str(item.get('name', '')):<14} "
+            f"│ {str(item.get('brand', '')):<14} "
+            f"│ {str(item.get('code', '')):<15} "
+            f"│ {str(item.get('quantity', '')):>8} "
+            f"│ {str(item.get('expiration', '')):<10} │"
+        )
+    print(Fore.WHITE + "└────┴────────────────┴────────────────┴─────────────────┴──────────┴────────────┘")
+    print()
+    print(Fore.CYAN + "┌────────────────────────────────────────────────┐")
+    print(Fore.CYAN + f"│ Total Items: {count:<34}│")
+    print(Fore.CYAN + "└────────────────────────────────────────────────┘")
 
 def get_item():
     item_id = input("Enter item ID: ")
@@ -58,36 +126,34 @@ def get_item():
     show_response(response)
 
 def search_product():
-    print("\n========== SEARCH PRODUCT ==========")
+    print("\nSearch Product")
     barcode = input("Enter product barcode: ")
     if not barcode:
         print("Barcode is required.")
         return
     try:
-        response = session.get(
-            f"{BASE_URL}/search/{barcode}"
-        )
+        response = session.get(f"{BASE_URL}/search/{barcode}")
         show_response(response)
     except requests.exceptions.ConnectionError:
         print("Could not connect to Flask server.")
         return
+
     if response.status_code == 200:
         product = response.json()
-
         print("\nProduct found!")
         print("Name:", product.get("name", "Unknown"))
         print("Brand:", product.get("brand", "Unknown"))
 
-        add = input("\nAdd this product to inventory? (y/n): ")
-
+        add = input("Add this product to inventory? (y/n): ")
         if add.lower() == "y":
             add_item(
                 barcode=barcode,
                 name=product.get("name"),
                 brand=product.get("brand")
             )
+
 def add_item(barcode=None, name=None, brand=None):
-    print("\n========== ADD ITEM ==========")
+    print("\nAdd Item")
     if barcode is None:
         barcode = input("Enter product barcode: ")
     if not barcode:
@@ -97,19 +163,18 @@ def add_item(barcode=None, name=None, brand=None):
         name = input("Enter product name: ")
     if brand is None:
         brand = input("Enter brand: ")
+
     quantity = input("Enter quantity: ")
     try:
         quantity = int(quantity)
-
         if quantity < 0:
             print("Quantity cannot be negative.")
             return
     except ValueError:
         print("Quantity must be a number.")
         return
-    expiration = input(
-        "Enter expiration date (YYYY-MM-DD or blank): "
-    )
+
+    expiration = input("Enter expiration date (YYYY-MM-DD or blank): ")
     data = {
         "code": barcode,
         "name": name,
@@ -118,30 +183,28 @@ def add_item(barcode=None, name=None, brand=None):
     }
     if expiration:
         data["expiration"] = expiration
+
     try:
-        response = session.post(
-            f"{BASE_URL}/inventory",
-            json=data
-        )
-
+        response = session.post(f"{BASE_URL}/inventory", json=data)
         show_response(response)
-
     except requests.exceptions.ConnectionError:
         print("Could not connect to Flask server.")
+
 def update_item():
-    print("\n========== UPDATE ITEM ==========")
+    print("\nUpdate Item")
     item_id = input("Enter item ID: ")
     try:
         item_id = int(item_id)
     except ValueError:
         print("ID must be a number.")
         return
-    print("\nLeave a field blank if you don't want to change it.")
 
+    print("Leave a field blank if you don't want to change it.")
     quantity = input("New quantity: ")
     name = input("New name: ")
     brand = input("New brand: ")
     expiration = input("New expiration: ")
+
     data = {}
     if quantity:
         try:
@@ -158,78 +221,76 @@ def update_item():
         data["brand"] = brand
     if expiration:
         data["expiration"] = expiration
+
     if not data:
         print("Nothing to update.")
         return
+
     try:
-        response = session.patch(
-            f"{BASE_URL}/inventory/{item_id}",
-            json=data
-        )
+        response = session.patch(f"{BASE_URL}/inventory/{item_id}", json=data)
         show_response(response)
     except requests.exceptions.ConnectionError:
         print("Could not connect to Flask server.")
 
 def delete_item():
-    print("\n========== DELETE ITEM ==========")
-
+    print("\nDelete Item")
     item_id = input("Enter item ID: ")
-
     try:
         item_id = int(item_id)
     except ValueError:
         print("ID must be a number.")
         return
-    confirm = input(
-        "Are you sure you want to delete this item? (y/n): "
-    )
+
+    confirm = input("Are you sure you want to delete this item? (y/n): ")
     if confirm.lower() != "y":
         print("Delete cancelled.")
         return
+
     try:
-        response = session.delete(
-            f"{BASE_URL}/inventory/{item_id}"
-        )
+        response = session.delete(f"{BASE_URL}/inventory/{item_id}")
         show_response(response)
     except requests.exceptions.ConnectionError:
         print("Could not connect to Flask server.")
+
 def set_cookie():
     response = session.get(f"{BASE_URL}/set_cookie")
     show_response(response)
+
 def get_cookie():
     response = session.get(f"{BASE_URL}/get_cookie")
     show_response(response)
+
 def delete_cookie():
     response = session.get(f"{BASE_URL}/delete_cookie")
     show_response(response)
+
 def menu():
-    print("\n========== INVENTORY MANAGEMENT ==========")
-    print("1. List inventory")
-    print("2. Get item")
-    print("3. Search product from the (API)")
-    print("4. Add item")
-    print("5. Update item")
-    print("6. Delete item")
-    print("7. Who am I?")
-    print("8. Set cookie")
-    print("9. Get cookie")
-    print("10. Delete cookie")
-    print("11. Logout and exit")
-    print("===========================================")
+    print("\n+--------------------------------------+")
+    print("|        Inventory Management Menu      |")
+    print("+--------------------------------------+")
+    print("| 1. List inventory                     |")
+    print("| 2. Get item                           |")
+    print("| 3. Search product from API            |")
+    print("| 4. Add item                           |")
+    print("| 5. Update item                        |")
+    print("| 6. Delete item                        |")
+    print("| 7. Who am I?                          |")
+    print("| 8. Set cookie                         |")
+    print("| 9. Get cookie                         |")
+    print("| 10. Delete cookie                     |")
+    print("| 11. Logout and exit                   |")
+    print("+--------------------------------------+")
 
 def main():
-    print("\n================================")
-    print("   INVENTORY MANAGEMENT SYSTEM")
-    print("================================")
+    print("\nWelcome to the Inventory Management System")
     logged_in = login()
     if not logged_in:
-        print("\nLogin failed.")
-        print("Program closing.")
+        print("Login failed. Program closing.")
         return
 
     while True:
         menu()
-        choice = input("\nChoose an option: ")
+        choice = input("Choose an option: ")
         if choice == "1":
             list_inventory()
         elif choice == "2":
@@ -252,9 +313,10 @@ def main():
             delete_cookie()
         elif choice == "11":
             logout()
-            print("\nGoodbye!")
+            print("Goodbye!")
             break
         else:
-            print("\nInvalid choice. Please choose 1-11.")
+            print("Invalid choice. Please choose 1-11.")
+
 if __name__ == "__main__":
     main()
