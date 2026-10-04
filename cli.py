@@ -1,32 +1,13 @@
 import requests
 from colorama import init, Fore, Style
-init(autoreset=True)
+
 
 BASE_URL = "http://127.0.0.1:5000"
 
 # Keep login cookies
 session = requests.Session()
 
-WIDTH = 60
-def big_box_top():
-    print(Fore.CYAN + "╔" + "═" * (WIDTH - 2) + "╗")
-def big_box_bottom():
-    print(Fore.CYAN + "╚" + "═" * (WIDTH - 2) + "╝")
 
-def box_line(text="", color=Fore.WHITE, width=WIDTH):
-    content = str(text)
-    if len(content) > width - 4:
-        content = content[:width - 4]
-    spaces = width - 3 - len(content)
-    print(
-        Fore.CYAN
-        + "║"
-        + color
-        + " "
-        + content
-        + " " * spaces
-        + Fore.CYAN
-        + "║")
     
 def show_response(response):
     print("┌────────────────────────────────────────────────────────────┐")
