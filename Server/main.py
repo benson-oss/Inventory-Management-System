@@ -56,7 +56,7 @@ def get_item(item_id):
 def search_product(barcode):
     try:
         # Identifing my app to the API
-        headers = {"User-Agent": "BensonPOS/1.0 (benson@example.com)"}
+        headers = {"User-Agent": "BensonPOS/1.0 (benson@gmail.com)"}
         # Call the Open Food Facts API using the barcode
         r = requests.get(
             f"https://world.openfoodfacts.org/api/v0/product/{barcode}.json",
