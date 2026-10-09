@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify, session
 import requests
 #Flask application
 app = Flask(__name__)
-app.secret_key = "supersecret"
+app.secret_key = "benson"
 inventory = []
 
 # HELPER FUNCTIONS
@@ -56,7 +56,7 @@ def get_item(item_id):
 def search_product(barcode):
     try:
         # Identifing my app to the API
-        headers = {"User-Agent": "BensonPOS/1.0 (benson@gmail.com)"}
+        headers = {"User-Agent": "BensonI/1.0 (benson@gmail.com)"}
         # Call the Open Food Facts API using the barcode
         r = requests.get(
             f"https://world.openfoodfacts.org/api/v0/product/{barcode}.json",
